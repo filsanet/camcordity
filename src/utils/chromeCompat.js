@@ -10,46 +10,90 @@ const storage = {
   local: webStorage
 };
 
+// Initialize BroadcastChannel for cross-component communication
+let broadcastChannel;
+if (typeof BroadcastChannel !== 'undefined') {
+  broadcastChannel = new BroadcastChannel('camcordity-messages');
+}
+
 // Runtime API compatibility  
 const runtime = {
-  // Message passing using custom events and BroadcastChannel
+  // Message passing using BroadcastChannel and custom events
   sendMessage: (message, callback) => {
-    // For now, we'll use custom events. Later we can implement BroadcastChannel
-    const event = new CustomEvent('camcordity-message', {
-      detail: { message, sender: 'runtime' }
-    });
+    // Add unique ID for response matching
+    const messageId = Date.now() + Math.random();
+    const messageWithId = { ...message, _messageId: messageId };
     
     if (callback) {
       // Set up a one-time listener for the response
       const responseHandler = (event) => {
-        if (event.detail.responseId === message.id) {
-          window.removeEventListener('camcordity-response', responseHandler);
-          callback(event.detail.response);
+        const data = event.data || event.detail;
+        if (data && data._responseId === messageId) {
+          if (broadcastChannel) {
+            broadcastChannel.removeEventListener('message', responseHandler);
+          } else {
+            window.removeEventListener('camcordity-response', responseHandler);
+          }
+          callback(data.response);
         }
       };
-      window.addEventListener('camcordity-response', responseHandler);
+      
+      if (broadcastChannel) {
+        broadcastChannel.addEventListener('message', responseHandler);  
+      } else {
+        window.addEventListener('camcordity-response', responseHandler);
+      }
     }
     
-    window.dispatchEvent(event);
+    // Send via BroadcastChannel if available, fallback to custom events
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({
+        type: 'runtime-message',
+        message: messageWithId,
+        sender: 'runtime'
+      });
+    } else {
+      const event = new CustomEvent('camcordity-message', {
+        detail: { 
+          type: 'runtime-message',
+          message: messageWithId, 
+          sender: 'runtime' 
+        }
+      });
+      window.dispatchEvent(event);
+    }
   },
 
   onMessage: {
     addListener: (callback) => {
       const handler = (event) => {
-        if (event.detail.sender !== 'runtime') {
+        const data = event.data || event.detail;
+        if (data && data.type === 'runtime-message' && data.sender !== 'runtime') {
           const sendResponse = (response) => {
-            const responseEvent = new CustomEvent('camcordity-response', {
-              detail: { 
-                response, 
-                responseId: event.detail.message.id 
-              }
-            });
-            window.dispatchEvent(responseEvent);
+            const responseMessage = {
+              type: 'runtime-response',
+              response,
+              _responseId: data.message._messageId
+            };
+            
+            if (broadcastChannel) {
+              broadcastChannel.postMessage(responseMessage);
+            } else {
+              const responseEvent = new CustomEvent('camcordity-response', {
+                detail: responseMessage
+              });
+              window.dispatchEvent(responseEvent);
+            }
           };
           
-          callback(event.detail.message, event.detail.sender, sendResponse);
+          callback(data.message, data.sender, sendResponse);
         }
       };
+      
+      // Add both BroadcastChannel and custom event listeners
+      if (broadcastChannel) {
+        broadcastChannel.addEventListener('message', handler);
+      }
       window.addEventListener('camcordity-message', handler);
       
       // Store handler for removal
@@ -63,7 +107,11 @@ const runtime = {
       if (window._camcordityMessageHandlers) {
         const index = window._camcordityMessageHandlers.findIndex(h => h.callback === callback);
         if (index >= 0) {
-          window.removeEventListener('camcordity-message', window._camcordityMessageHandlers[index].handler);
+          const handler = window._camcordityMessageHandlers[index].handler;
+          if (broadcastChannel) {
+            broadcastChannel.removeEventListener('message', handler);
+          }
+          window.removeEventListener('camcordity-message', handler);
           window._camcordityMessageHandlers.splice(index, 1);
         }
       }

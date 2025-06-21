@@ -1,31 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { local as storage } from '../utils/storage.js';
+import { useRecordingState, useMessageListener } from '../hooks/useMessage.js';
 
 const Home = () => {
   const navigate = useNavigate();
   const [recordingType, setRecordingType] = useState('screen');
   const [isRecording, setIsRecording] = useState(false);
+  
+  // Message service hooks
+  const { checkRecordingState, stopRecording } = useRecordingState();
 
   useEffect(() => {
     // Check if currently recording
     const checkRecordingStatus = async () => {
-      const data = await storage.get(['recording', 'recordingType']);
-      setIsRecording(data.recording || false);
+      const state = await checkRecordingState();
+      setIsRecording(state.recording || false);
+      
+      const data = await storage.get(['recordingType']);
       setRecordingType(data.recordingType || 'screen');
     };
 
     checkRecordingStatus();
+  }, [checkRecordingState]);
 
-    // Listen for recording state changes
-    const handleStorageChange = async () => {
-      const data = await storage.get('recording');
-      setIsRecording(data.recording || false);
-    };
-
-    // Set up periodic check for recording state
-    const interval = setInterval(handleStorageChange, 1000);
-    return () => clearInterval(interval);
+  // Listen for state changes from message service
+  useMessageListener('state-change', (data) => {
+    if (data.key === 'recording') {
+      setIsRecording(data.value);
+    }
   }, []);
 
   const handleStartRecording = async () => {
@@ -37,7 +40,7 @@ const Home = () => {
   };
 
   const handleStopRecording = async () => {
-    await storage.set({ recording: false });
+    await stopRecording();
     setIsRecording(false);
   };
 

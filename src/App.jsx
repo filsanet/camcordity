@@ -5,6 +5,7 @@ import './utils/chromeCompat.js'; // Initialize Chrome API compatibility layer
 // Import web app specific components  
 import Home from './components/Home.jsx';
 import Navigation from './components/Navigation.jsx';
+import Record from './components/Record.jsx';
 
 function App() {
   return (
@@ -16,8 +17,8 @@ function App() {
             {/* Main web app routes */}
             <Route path="/" element={<Home />} />
             
-            {/* Placeholder routes for future implementation */}
-            <Route path="/record" element={<div>Recording interface coming soon...</div>} />
+            {/* Recording interface */}
+            <Route path="/record" element={<Record />} />
             <Route path="/camera" element={<div>Camera interface coming soon...</div>} />
             <Route path="/editor" element={<div>Editor coming soon...</div>} />
             <Route path="/setup" element={<div>Settings coming soon...</div>} />
