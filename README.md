@@ -1,6 +1,15 @@
-# Screenity
-[![jiewjjc232](https://github.com/alyssaxuu/screenity/assets/7581348/ed55e52e-4adf-442b-b774-6856abacdffb)](https://screenity.io)
+# Camcordity
 
+Camcordity is a conversion of the [Screenity](https://github.com/alyssaxuu/screenity/) chrome extension into a regular web application. The goal is to provide in-browser video recording without relying on the chrome extension APIs.
+
+## What is different about Camcordity
+
+* not delivered as a Chrome extension, so cannot use any chrome specific Extension APIs
+* delivered instead as a website, but one that has all the video functions running in the browser
+* No support for self-hosting
+* No support for saving to Google drive
+
+# from the original Screenity README.md (with Camcordity specific notes)
 
 The free and privacy-friendly screen recorder with no limits 🎥
 
@@ -20,10 +29,9 @@ Made by [Alyssa X](https://alyssax.com)
 ## Table of contents
 
 - [Features](#features)
-- [Self-hosting Screenity](#self-hosting-screenity)
+- [Self-hosting Camcordity](#self-hosting-camcordity)
 - [Creating a development version](#creating-a-development-version)
   - [Enabling Save to Google Drive](#enabling-save-to-google-drive)
-- [Acknowledgements](#acknowledgements)
 
 ## Features
 
@@ -41,14 +49,9 @@ Made by [Alyssa X](https://alyssax.com)
 🔒 Only you can see your videos, we don’t collect any of your data. You can even go offline!<br>
 💙 No limits, make as many videos as you want, for as long as you want<br> …and much more - all for free & no sign in needed!
 
-## Self-hosting Screenity
+## Self-hosting Camcordity
 
-You can run Screenity locally without having to install it from the Chrome Store. Here's how:
-
-1. Download the latest Build.zip from the [releases page](https://github.com/alyssaxuu/screenity/releases)
-2. Load the extension by pasting `chrome://extensions/` in the address bar, and [enabling developer mode](https://developer.chrome.com/docs/extensions/mv2/faq/#:~:text=You%20can%20start%20by%20turning,a%20packaged%20extension%2C%20and%20more.).
-3. Drag the folder that contains the code (make sure it's a folder and not a ZIP file, so unzip first), or click on the "Load unpacked" button and locate the folder.
-4. That's it, you should now be able to use Screenity locally. [Follow these instructions](#enabling-save-to-google-drive) to set up the Google Drive integration.
+Camcordity is not interested in self-hosting (as a chrome extension in developer mode)
 
 ## Creating a development version
 
@@ -64,9 +67,7 @@ You can run Screenity locally without having to install it from the Chrome Store
 
 ### Enabling Save to Google Drive
 
-To enable the Google Drive Upload (authorization consent screen) you must change the client_id in the manifest.json file with your linked extension key.
-
-You can create it accessing [Google Cloud Console](https://console.cloud.google.com/apis/credentials) and selecting Create Credential > OAuth Client ID > Chrome App. To create a persistent extension key, you can follow the steps detailed [here](https://developer.chrome.com/docs/extensions/reference/manifest/key).
+Camcordity will not support save to google drive. We may add "save to a local server" later.
 
 ## Libraries used
 
@@ -80,11 +81,3 @@ You can create it accessing [Google Cloud Console](https://console.cloud.google.
 - [React Advanced Cropper](https://advanced-cropper.github.io/react-advanced-cropper/) for the cropping UI in the editor
 - [fix-webm-duration](https://github.com/yusitnikov/fix-webm-duration) to add missing metadata to WEBM files
 
-## Acknowledgements
-
-- Thanks to [HelpKit](https://www.helpkit.so/) for sponsoring this project by hosting the [Screenity Help Center](https://help.screenity.io/).
-- Thanks to [Mei Xuan](https://www.behance.net/meixuanloo) for helping with the Chinese translation of the extension.
-
-If you need any help, or want to become a Screenity expert, you can browse articles and guides in the [help center](https://help.screenity.io). You can also submit any feedback or ideas in this [form](https://tally.so/r/3ElpXq), or contact through [this page](https://help.screenity.io/contact)
-
-Feel free to reach out to me through email at hi@alyssax.com or [on Twitter](https://twitter.com/alyssaxuu) if you have any questions or feedback! Hope you find this useful 💜
